@@ -2,77 +2,134 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>구구단 산성비 게임</title>
+    <title>논공 산성비게임</title>
+    <!-- Google Fonts 글꼴 추가 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS: 게임 화면 디자인 */
+        /* CSS: 전체적인 디자인 */
         body {
-            font-family: 'Malgun Gothic', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif; /* 적용된 글꼴 */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            background-color: #f0f0f0;
+            background: linear-gradient(to bottom, #89f7fe, #66a6ff); /* 하늘색 그라데이션 배경 */
+            overflow: hidden; /* 배경 애니메이션이 화면을 벗어나지 않게 함 */
+        }
+        
+        /* 시작 화면 스타일 */
+        #start-screen {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.9); /* 반투명 흰색 배경 */
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         h1 {
-            color: #333;
+            color: #0056b3;
+            margin-top: 0;
+            margin-bottom: 20px;
         }
-        #game-container {
-            border: 2px solid #333;
-            position: relative;
-        }
-        canvas {
-            background-color: #e0f7fa; /* 하늘색 배경 */
-        }
-        #info-panel {
-            width: 500px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        #answer-input {
-            width: 500px;
-            padding: 10px;
-            font-size: 1.2em;
+        .info-input {
+            width: 250px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
             text-align: center;
-            margin-top: 10px;
-            border: 2px solid #333;
         }
-        #game-over {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: red;
-            font-size: 3em;
+        .info-input:focus {
+            outline: none;
+            border-color: #66a6ff;
+        }
+        #start-button {
+            padding: 12px 40px;
+            font-size: 1.3em;
             font-weight: bold;
-            display: none; /* 평소에는 숨김 */
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s ease, background-color 0.2s ease;
         }
+        #start-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        /* 배경 애니메이션 스타일 */
+        #background-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .raindrop {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.5em;
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        /* 게임 화면 스타일 (처음에는 숨겨둠) */
+        #game-screen { display: none; }
+        #game-container { border: 2px solid #333; position: relative; }
+        canvas { background-color: #e0f7fa; }
+        #info-panel { width: 500px; display: flex; justify-content: space-between; font-size: 1.2em; font-weight: bold; margin-bottom: 10px; }
+        #answer-input { width: 500px; padding: 10px; font-size: 1.2em; text-align: center; margin-top: 10px; border: 2px solid #333; border-radius: 10px;}
+        #game-over { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: red; font-size: 3em; font-weight: bold; display: none; }
     </style>
 </head>
 <body>
 
-    <h1>구구단 산성비</h1>
+    <!-- 시작 화면 배경 애니메이션 영역 -->
+    <div id="background-animation"></div>
 
-    <div id="info-panel">
-        <div id="score">점수: 0</div>
-        <div id="lives">생명: 5</div>
+    <!-- 시작 화면 콘텐츠 영역 -->
+    <div id="start-screen">
+        <h1>논공 산성비게임</h1>
+        <input type="number" id="grade-input" class="info-input" placeholder="학년">
+        <input type="number" id="class-input" class="info-input" placeholder="반">
+        <input type="text" id="name-input" class="info-input" placeholder="이름">
+        <button id="start-button">게임 시작!</button>
     </div>
 
-    <div id="game-container">
-        <canvas id="game-canvas" width="500" height="600"></canvas>
-        <div id="game-over">게임 오버</div>
+    <!-- 게임 화면 영역 -->
+    <div id="game-screen">
+        <div id="info-panel">
+            <div id="score">점수: 0</div>
+            <div id="lives">생명: 5</div>
+        </div>
+        <div id="game-container">
+            <canvas id="game-canvas" width="500" height="600"></canvas>
+            <div id="game-over">게임 오버</div>
+        </div>
+        <input type="number" id="answer-input" placeholder="정답을 입력하고 Enter">
     </div>
-    
-    <input type="number" id="answer-input" placeholder="정답을 입력하고 Enter" autofocus>
 
     <script>
-        // JavaScript: 게임 로직
-
-        // 1. 기본 설정
+        // === HTML 요소 가져오기 ===
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const startButton = document.getElementById('start-button');
+        const nameInput = document.getElementById('name-input');
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
         const input = document.getElementById('answer-input');
@@ -80,97 +137,124 @@
         const livesDisplay = document.getElementById('lives');
         const gameOverDisplay = document.getElementById('game-over');
 
-        let score = 0;
-        let lives = 5;
-        let problems = []; // 떨어지는 문제들을 담을 배열
-        let gameSpeed = 1; // 문제가 떨어지는 속도
-        let isGameOver = false;
+        // === 게임 변수 ===
+        let score = 0, lives = 5, gameSpeed = 1, isGameOver = false;
+        let problems = [];
 
-        // 2. 구구단 문제 생성 함수
+        // === 게임 시작 로직 ===
+        function startGame() {
+            setInterval(createProblem, 2000); // 문제 생성 속도 약간 늦춤
+            updateInfo();
+            gameLoop();
+            input.focus();
+        }
+
+        startButton.addEventListener('click', function() {
+            if (nameInput.value.trim() === '') {
+                alert('이름을 입력해주세요!');
+                return;
+            }
+            startScreen.style.display = 'none';
+            document.getElementById('background-animation').style.display = 'none'; // 배경 애니메이션도 숨김
+            gameScreen.style.display = 'block';
+            startGame();
+        });
+
+        // === ★핵심★ 문제 생성 로직 (곱셈 & 나눗셈) ===
         function createProblem() {
-            const num1 = Math.floor(Math.random() * 8) + 2; // 2~9
-            const num2 = Math.floor(Math.random() * 9) + 1; // 1~9
+            let newProblem;
+            // 50% 확률로 곱셈 또는 나눗셈 문제 출제
+            if (Math.random() < 0.5) {
+                // 곱셈 문제 생성 (예: 7 x 8)
+                const num1 = Math.floor(Math.random() * 8) + 2; // 2~9
+                const num2 = Math.floor(Math.random() * 8) + 2; // 2~9
+                newProblem = {
+                    text: `${num1} x ${num2}`,
+                    answer: num1 * num2
+                };
+            } else {
+                // 나누어떨어지는 나눗셈 문제 생성 (예: 56 ÷ 7)
+                const answer = Math.floor(Math.random() * 8) + 2; // 답이 될 수 (2~9)
+                const num2 = Math.floor(Math.random() * 8) + 2;   // 나누는 수 (2~9)
+                const num1 = answer * num2; // 나눠지는 수 계산
+                newProblem = {
+                    text: `${num1} ÷ ${num2}`,
+                    answer: answer
+                };
+            }
             
-            const newProblem = {
-                text: `${num1} x ${num2}`,
-                answer: num1 * num2,
-                x: Math.random() * (canvas.width - 60), // 글자 길이를 고려해 위치 조정
-                y: 0
-            };
+            // 공통 속성 추가
+            newProblem.x = Math.random() * (canvas.width - 80); // 글자 길이를 고려해 위치 조정
+            newProblem.y = 0;
             problems.push(newProblem);
         }
 
-        // 3. 사용자 입력 처리
+        // === 사용자 입력 처리 ===
         input.addEventListener('keydown', function(e) {
-            if (isGameOver || e.key !== 'Enter') return;
+            if (isGameOver || e.key !== 'Enter' || input.value === '') return;
 
             const userAnswer = parseInt(input.value);
-            let solved = false;
-
-            // 떨어지는 문제 중에 정답이 있는지 확인
             for (let i = problems.length - 1; i >= 0; i--) {
                 if (problems[i].answer === userAnswer) {
-                    problems.splice(i, 1); // 정답 맞힌 문제 배열에서 제거
+                    problems.splice(i, 1);
                     score += 10;
-                    gameSpeed += 0.1; // 맞힐수록 점점 빨라짐
-                    solved = true;
-                    break; // 하나만 풀도록 반복 중단
+                    gameSpeed += 0.05;
+                    break;
                 }
             }
-            
             updateInfo();
-            input.value = ''; // 입력창 비우기
+            input.value = '';
         });
 
-        // 4. 정보 업데이트 함수
-        function updateInfo() {
+        // === 게임 루프 및 기타 함수 ===
+        function updateInfo() { /* ... 이전과 동일 ... */ 
             scoreDisplay.textContent = `점수: ${score}`;
             livesDisplay.textContent = `생명: ${lives}`;
         }
 
-        // 5. 게임 루프 (핵심!)
-        function gameLoop() {
+        function gameLoop() { /* ... 이전과 동일 ... */ 
             if (isGameOver) return;
-
-            // 캔버스 초기화 (이전 프레임 지우기)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // 문제들을 아래로 이동시키고 그리기
             for (let i = problems.length - 1; i >= 0; i--) {
                 const p = problems[i];
-                p.y += gameSpeed; // 속도만큼 y좌표 증가
-
-                // 화면 바닥에 닿았는지 확인
+                p.y += gameSpeed;
                 if (p.y > canvas.height) {
-                    problems.splice(i, 1); // 문제 제거
+                    problems.splice(i, 1);
                     lives--;
                     updateInfo();
-                    if (lives <= 0) {
-                        endGame();
-                    }
+                    if (lives <= 0) endGame();
                 } else {
-                    // 캔버스에 문제 텍스트 그리기
-                    ctx.font = '20px Malgun Gothic';
-                    ctx.fillStyle = 'black';
+                    ctx.font = '24px Noto Sans KR';
+                    ctx.fillStyle = '#003366';
                     ctx.fillText(p.text, p.x, p.y);
                 }
             }
-
-            requestAnimationFrame(gameLoop); // 다음 프레임 요청
+            requestAnimationFrame(gameLoop);
         }
-
-        // 6. 게임 종료 함수
-        function endGame() {
+        function endGame() { /* ... 이전과 동일 ... */ 
             isGameOver = true;
             gameOverDisplay.style.display = 'block';
-            input.disabled = true; // 입력창 비활성화
+            input.disabled = true;
         }
 
-        // 7. 게임 시작
-        // 1.5초마다 새 문제 생성
-        setInterval(createProblem, 1500);
-        updateInfo();
-        gameLoop();
+        // === 시작 화면 배경 애니메이션 생성 ===
+        function createBackgroundAnimation() {
+            const container = document.getElementById('background-animation');
+            const chars = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'x', '÷', '='];
+            const count = 30; // 화면에 뿌릴 아이템 개수
+
+            for (let i = 0; i < count; i++) {
+                const drop = document.createElement('span');
+                drop.className = 'raindrop';
+                drop.textContent = chars[Math.floor(Math.random() * chars.length)];
+                drop.style.left = `${Math.random() * 100}vw`;
+                drop.style.animationDuration = `${Math.random() * 5 + 5}s`; // 5~10초 사이
+                drop.style.animationDelay = `${Math.random() * 5}s`; // 0~5초 사이 딜레이
+                drop.style.top = `${-20}px`; // 시작 위치
+                container.appendChild(drop);
+            }
+        }
+        createBackgroundAnimation(); // 페이지 로드 시 애니메이션 생성
 
     </script>
 </body>
